@@ -27,6 +27,7 @@ const deviceType = z.enum([
   'AEROPRESS',
   'FRENCH_PRESS',
   'KALITA_WAVE',
+  'HARIO_SWITCH',
 ]);
 
 type Recipe = z.infer<typeof recipeSchema>;
@@ -40,7 +41,7 @@ CHEMEX: 30g coffee, medium-coarse grind. 500ml water at 94°C. 45s bloom, then t
 
 export async function generateRecipe(
   device: string,
-): Promise<Recipe | 'UNAUTHORIZED' | 'RATE_LIMITED'> {
+): Promise<Recipe | 'UNAUTHORIZED' | 'RATE_LIMITED' | 'UNSUPPORTED_DEVICE'> {
   const session = await auth();
   if (!session?.user?.email) {
     return 'UNAUTHORIZED';
@@ -52,11 +53,14 @@ export async function generateRecipe(
       return 'RATE_LIMITED';
     }
   }
-  const deviceParsed = deviceType.parse(device);
+  const parseResult = deviceType.safeParse(device);
+  if (!parseResult.success) {
+    return 'UNSUPPORTED_DEVICE';
+  }
   const result = await generateObject({
     model: openai('gpt-4o-mini'),
     schema: recipeSchema,
-    prompt: createPrompt(deviceParsed),
+    prompt: createPrompt(parseResult.data),
     temperature: 0.9,
   });
   return result.object;

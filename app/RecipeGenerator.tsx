@@ -109,6 +109,9 @@ function formatResult(
   if (result === 'RATE_LIMITED') {
     return 'You have reached the daily limit for generating recipes. Come back tomorrow!';
   }
+  if (result === 'UNSUPPORTED_DEVICE') {
+    return 'The selected brewing device is not supported.';
+  }
   return [
     `${result.dose}g coffee, ${result.grindSize} grind.`,
     `${result.waterVolume}ml water at ${result.waterTemperature}°C.`,
