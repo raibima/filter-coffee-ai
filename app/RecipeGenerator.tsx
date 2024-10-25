@@ -8,7 +8,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {CoffeeIcon, Loader2} from 'lucide-react';
-import {useState} from 'react';
+import {useState, useTransition} from 'react';
+import {generateRecipe} from './actions';
 
 const brewingDevices = [
   'V60',
@@ -18,31 +19,17 @@ const brewingDevices = [
   'Kalita Wave',
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const generateRecipe = (device: string) => {
-  // This is a mock function to simulate AI-generated recipes
-  const recipes: Record<string, string> = {
-    V60: '15g coffee, medium-fine grind. 250ml water at 96°C. 30s bloom, then pour in spirals. Total brew time: 2:30.',
-    Chemex:
-      '30g coffee, medium-coarse grind. 500ml water at 94°C. 45s bloom, then two more pours. Total brew time: 4:00.',
-    AeroPress:
-      '17g coffee, fine grind. 220ml water at 88°C. Inverted method, steep for 1:30, then press for 30s.',
-    'French Press':
-      '30g coffee, coarse grind. 500ml water at 93°C. Steep for 4 minutes, then plunge slowly.',
-    'Kalita Wave':
-      '20g coffee, medium grind. 300ml water at 95°C. 30s bloom, then three even pours. Total brew time: 3:00.',
-  };
-  return recipes[device] || 'Recipe not available for this device.';
-};
-
 export default function RecipeGenerator() {
   const [device, setDevice] = useState<string>('');
+  const [isGenerating, startTransition] = useTransition();
+  const [recipe, setRecipe] = useState<string>('');
 
-  // TODO
-  const recipe = '';
-  const isGenerating = false;
-
-  function handleGenerate() {}
+  function handleGenerate() {
+    startTransition(async () => {
+      const result = await generateRecipe(device);
+      setRecipe(formatResult(result));
+    });
+  }
 
   return (
     <>
@@ -92,3 +79,18 @@ export default function RecipeGenerator() {
     </>
   );
 }
+
+type PromiseResult<T> = T extends Promise<infer U> ? U : never;
+
+function formatResult(
+  result: PromiseResult<ReturnType<typeof generateRecipe>>,
+): string {
+  return [
+    `${result.dose}g coffee, ${result.grindSize} grind.`,
+    `${result.waterVolume}ml water at ${result.waterTemperature}°C.`,
+    result.steps.join(' '),
+    `Total brew time: ${result.totalBrewTime}.`,
+  ].join(' ');
+}
+
+// 15g coffee, medium-fine grind. 250ml water at 96°C. 30s bloom, then pour in spirals. Total brew time: 2:30.
