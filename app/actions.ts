@@ -4,6 +4,7 @@ import {generateObject} from 'ai';
 import {openai} from '@ai-sdk/openai';
 import {z} from 'zod';
 import {signIn, signOut as signOutImpl, auth} from './auth';
+import {rateLimit} from './rateLimit';
 
 const recipeSchema = z.object({
   dose: z.number(),
@@ -37,10 +38,19 @@ CHEMEX: 30g coffee, medium-coarse grind. 500ml water at 94°C. 45s bloom, then t
 `;
 }
 
-export async function generateRecipe(device: string): Promise<Recipe | null> {
+export async function generateRecipe(
+  device: string,
+): Promise<Recipe | 'UNAUTHORIZED' | 'RATE_LIMITED'> {
   const session = await auth();
-  if (!session?.user) {
-    return null;
+  if (!session?.user?.email) {
+    return 'UNAUTHORIZED';
+  }
+  const userEmail = session.user.email;
+  if (userEmail !== process.env.NO_RATE_LIMIT) {
+    const {success} = await rateLimit.limit(session.user.email!);
+    if (!success) {
+      return 'RATE_LIMITED';
+    }
   }
   const deviceParsed = deviceType.parse(device);
   const result = await generateObject({

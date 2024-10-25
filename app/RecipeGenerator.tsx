@@ -102,8 +102,11 @@ type PromiseResult<T> = T extends Promise<infer U> ? U : never;
 function formatResult(
   result: PromiseResult<ReturnType<typeof generateRecipe>>,
 ): string {
-  if (!result) {
-    return 'Failed to generate recipe. Please try again.';
+  if (result === 'UNAUTHORIZED') {
+    return 'You must first sign in to generate a recipe.';
+  }
+  if (result === 'RATE_LIMITED') {
+    return 'You have reached the daily limit for generating recipes. Come back tomorrow!';
   }
   return [
     `${result.dose}g coffee, ${result.grindSize} grind.`,
