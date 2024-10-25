@@ -183,10 +183,7 @@ export function CoffeeRecipeGeneratorComponent() {
           )}
         </CardContent>
       </Card>
-      <p className="text-xs text-center text-gray-700 mt-4">
-        © {new Date().getFullYear()} Coffee Recipe Generator. All rights
-        reserved.
-      </p>
+      <Footnote />
 
       <Dialog open={isSignInOpen} onOpenChange={setIsSignInOpen}>
         <DialogContent>
@@ -220,5 +217,14 @@ export function CoffeeRecipeGeneratorComponent() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function Footnote() {
+  return (
+    <p className="text-xs text-center text-gray-700 mt-4">
+      © {new Date().getFullYear()} Coffee Recipe Generator. All rights
+      reserved.
+    </p>
   );
 }
