@@ -12,11 +12,11 @@ import {useState, useTransition} from 'react';
 import {generateRecipe} from './actions';
 
 const brewingDevices = [
-  'V60',
-  'Chemex',
-  'AeroPress',
-  'French Press',
-  'Kalita Wave',
+  ['V60', 'V60'],
+  ['Chemex', 'CHEMEX'],
+  ['Aeropress', 'AEROPRESS'],
+  ['French Press', 'FRENCH_PRESS'],
+  ['Kalita Wave', 'KALITA_WAVE'],
 ];
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -62,9 +62,9 @@ export default function RecipeGenerator() {
             <SelectValue placeholder="Choose a device" />
           </SelectTrigger>
           <SelectContent>
-            {brewingDevices.map((dev) => (
-              <SelectItem key={dev} value={dev}>
-                {dev}
+            {brewingDevices.map(([name, key]) => (
+              <SelectItem key={key} value={key}>
+                {name}
               </SelectItem>
             ))}
           </SelectContent>
