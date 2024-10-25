@@ -1,6 +1,6 @@
 'use client';
 
-import {ReactNode, useState} from 'react';
+import {useState, useTransition} from 'react';
 import {Button} from '@/components/ui/button';
 import {
   Dialog,
@@ -17,18 +17,32 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {User, LogOut} from 'lucide-react';
+import {signIntoGoogle, signOut} from './actions';
+import {Session} from 'next-auth';
 
-export default function UserMenu({children}: {children: ReactNode}) {
-  const user = {
-    name: 'Jane Doe',
-    image: 'https://github.com/shadcn.png',
-  };
+export default function UserMenu({session}: {session: Session | null}) {
+  const user = session?.user
+    ? {
+        name: session.user!.name ?? 'Unknown',
+        image: session.user!.image,
+      }
+    : null;
 
   const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [isSigningIn, startSigningIn] = useTransition();
+  const [isSigningOut, startSigningOut] = useTransition();
 
-  const handleGoogleSignIn = () => {};
+  const handleGoogleSignIn = () => {
+    startSigningIn(async () => {
+      await signIntoGoogle();
+    });
+  };
 
-  const handleLogout = () => {};
+  const handleLogout = () => {
+    startSigningOut(async () => {
+      await signOut();
+    });
+  };
 
   return (
     <>
@@ -38,7 +52,9 @@ export default function UserMenu({children}: {children: ReactNode}) {
             <DropdownMenuTrigger asChild>
               <div className="flex items-center space-x-2 bg-white rounded-full py-2 px-4 shadow-md cursor-pointer">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user.image} alt={user.name} />
+                  {user.image && (
+                    <AvatarImage src={user.image} alt={user.name} />
+                  )}
                   <AvatarFallback>
                     <User />
                   </AvatarFallback>
@@ -47,7 +63,11 @@ export default function UserMenu({children}: {children: ReactNode}) {
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="text-red-600 disabled:opacity-50"
+                disabled={isSigningOut}
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
@@ -59,7 +79,6 @@ export default function UserMenu({children}: {children: ReactNode}) {
           </Button>
         )}
       </div>
-      {children}
       <Dialog open={isSignInOpen} onOpenChange={setIsSignInOpen}>
         <DialogContent>
           <DialogHeader>
@@ -68,7 +87,11 @@ export default function UserMenu({children}: {children: ReactNode}) {
               Sign in with Google to generate your personalized coffee recipe.
             </DialogDescription>
           </DialogHeader>
-          <Button onClick={handleGoogleSignIn} className="w-full">
+          <Button
+            onClick={handleGoogleSignIn}
+            className="w-full disabled:opacity-50"
+            disabled={isSigningIn}
+          >
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
               <path
                 fill="currentColor"

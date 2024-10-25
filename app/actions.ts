@@ -3,6 +3,7 @@
 import {generateObject} from 'ai';
 import {openai} from '@ai-sdk/openai';
 import {z} from 'zod';
+import {signIn, signOut as signOutImpl, auth} from './auth';
 
 const recipeSchema = z.object({
   dose: z.number(),
@@ -36,7 +37,11 @@ CHEMEX: 30g coffee, medium-coarse grind. 500ml water at 94°C. 45s bloom, then t
 `;
 }
 
-export async function generateRecipe(device: string): Promise<Recipe> {
+export async function generateRecipe(device: string): Promise<Recipe | null> {
+  const session = await auth();
+  if (!session?.user) {
+    return null;
+  }
   const deviceParsed = deviceType.parse(device);
   const result = await generateObject({
     model: openai('gpt-4o-mini'),
@@ -45,4 +50,15 @@ export async function generateRecipe(device: string): Promise<Recipe> {
     temperature: 0.9,
   });
   return result.object;
+}
+
+export async function signIntoGoogle() {
+  await signIn('google');
+}
+
+export async function signOut() {
+  const session = await auth();
+  if (session?.user) {
+    await signOutImpl();
+  }
 }

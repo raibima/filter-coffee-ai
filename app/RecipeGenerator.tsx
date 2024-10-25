@@ -19,6 +19,8 @@ const brewingDevices = [
   'Kalita Wave',
 ];
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export default function RecipeGenerator() {
   const [device, setDevice] = useState<string>('');
   const [isGenerating, startTransition] = useTransition();
@@ -26,8 +28,23 @@ export default function RecipeGenerator() {
 
   function handleGenerate() {
     startTransition(async () => {
-      const result = await generateRecipe(device);
-      setRecipe(formatResult(result));
+      while (true) {
+        let retries = 0;
+        try {
+          const result = await generateRecipe(device);
+          setRecipe(formatResult(result));
+          break;
+        } catch (error) {
+          if (retries < 3) {
+            retries++;
+            console.warn('Failed to generate recipe, retrying...');
+            await sleep(1000);
+            continue;
+          }
+          console.error(error);
+          break;
+        }
+      }
     });
   }
 
@@ -85,6 +102,9 @@ type PromiseResult<T> = T extends Promise<infer U> ? U : never;
 function formatResult(
   result: PromiseResult<ReturnType<typeof generateRecipe>>,
 ): string {
+  if (!result) {
+    return 'Failed to generate recipe. Please try again.';
+  }
   return [
     `${result.dose}g coffee, ${result.grindSize} grind.`,
     `${result.waterVolume}ml water at ${result.waterTemperature}°C.`,
