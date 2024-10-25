@@ -9,6 +9,8 @@ import RecipeGenerator from './RecipeGenerator';
 import UserMenu from './UserMenu';
 import {unstable_cacheLife as cacheLife} from 'next/cache';
 
+export const maxDuration = 60;
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-100 to-amber-200 flex flex-col items-center justify-center p-4">
