@@ -33,6 +33,11 @@ export default function Home() {
         </CardContent>
       </Card>
       <Footnote />
+      <p className="text-xs text-center text-gray-700 mt-1">
+        <a href="https://forms.gle/LbtJeBZG2dK29WrQA" className="font-bold underline">
+          Submit Feedback
+        </a>
+      </p>
     </div>
   );
 }

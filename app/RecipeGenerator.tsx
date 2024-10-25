@@ -17,6 +17,7 @@ const brewingDevices = [
   ['Aeropress', 'AEROPRESS'],
   ['French Press', 'FRENCH_PRESS'],
   ['Kalita Wave', 'KALITA_WAVE'],
+  ['Switch', 'HARIO_SWITCH'],
 ];
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
