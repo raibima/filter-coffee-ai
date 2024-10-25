@@ -42,7 +42,7 @@ const brewingDevices = [
 
 const generateRecipe = (device: string) => {
   // This is a mock function to simulate AI-generated recipes
-  const recipes = {
+  const recipes: Record<string, string> = {
     V60: '15g coffee, medium-fine grind. 250ml water at 96°C. 30s bloom, then pour in spirals. Total brew time: 2:30.',
     Chemex:
       '30g coffee, medium-coarse grind. 500ml water at 94°C. 45s bloom, then two more pours. Total brew time: 4:00.',
@@ -68,7 +68,7 @@ export function CoffeeRecipeGeneratorComponent() {
     if (!user) {
       setIsSignInOpen(true);
     } else {
-      generateRecipe();
+      generateRecipeEntry();
     }
   };
 
@@ -80,7 +80,7 @@ export function CoffeeRecipeGeneratorComponent() {
       name: 'Jane Doe',
       image: 'https://github.com/shadcn.png', // placeholder image
     });
-    generateRecipe();
+    generateRecipeEntry();
   };
 
   const handleLogout = () => {
@@ -89,7 +89,7 @@ export function CoffeeRecipeGeneratorComponent() {
     setRecipe('');
   };
 
-  const generateRecipe = () => {
+  const generateRecipeEntry = () => {
     setIsGenerating(true);
     // Simulate API call delay
     setTimeout(() => {
