@@ -19,6 +19,7 @@ import {
 import {User, LogOut} from 'lucide-react';
 import {signIntoGoogle, signOut} from './actions';
 import {Session} from 'next-auth';
+import {clearPreferences} from './CoffeePreferences';
 
 export default function UserMenu({
   session,
@@ -48,6 +49,7 @@ export default function UserMenu({
     startSigningOut(async () => {
       await signOut();
     });
+    clearPreferences();
   };
 
   return (

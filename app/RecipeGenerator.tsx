@@ -8,8 +8,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {CoffeeIcon, Loader2} from 'lucide-react';
-import {useState, useTransition} from 'react';
+import {useLayoutEffect, useState, useTransition} from 'react';
 import {generateRecipe} from './actions';
+import {Textarea} from '@/components/ui/textarea';
+import {loadPreferences, persistPreferences} from './CoffeePreferences';
 
 const brewingDevices = [
   ['V60', 'V60'],
@@ -23,16 +25,24 @@ const brewingDevices = [
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function RecipeGenerator() {
-  const [device, setDevice] = useState<string>('');
+  const [device, setDevice] = useState('');
+  const [preferences, setPreferences] = useState('');
   const [isGenerating, startTransition] = useTransition();
-  const [recipe, setRecipe] = useState<string>('');
+  const [recipe, setRecipe] = useState('');
+
+  useLayoutEffect(() => {
+    const savedPreferences = loadPreferences();
+    if (savedPreferences) {
+      setPreferences(savedPreferences);
+    }
+  }, []);
 
   function handleGenerate() {
     startTransition(async () => {
       while (true) {
         let retries = 0;
         try {
-          const result = await generateRecipe(device);
+          const result = await generateRecipe(device, preferences);
           setRecipe(formatResult(result));
           break;
         } catch (error) {
@@ -47,6 +57,7 @@ export default function RecipeGenerator() {
         }
       }
     });
+    persistPreferences(preferences);
   }
 
   return (
@@ -70,6 +81,25 @@ export default function RecipeGenerator() {
             ))}
           </SelectContent>
         </Select>
+      </div>
+      <div>
+        <label
+          htmlFor="preferences"
+          className="text-sm font-medium text-gray-700"
+        >
+          Coffee preferences (optional):
+        </label>
+        <p className="text-xs text-muted-foreground">
+          Specify any particular taste preferences, coffee origin, or brewing
+          style you'd like to try.
+        </p>
+        <Textarea
+          id="preferences"
+          placeholder="Ethiopian light roast, floral notes, 1:16 ratio."
+          value={preferences}
+          onChange={(e) => setPreferences(e.target.value)}
+          className="min-h-[100px] mt-2"
+        />
       </div>
       <Button
         onClick={handleGenerate}
@@ -112,6 +142,9 @@ function formatResult(
   if (result === 'UNSUPPORTED_DEVICE') {
     return 'The selected brewing device is not supported.';
   }
+  if (result === 'BAD_REQUEST') {
+    return 'Invalid request. Please try again.';
+  }
   return [
     `${result.dose}g coffee, ${result.grindSize} grind.`,
     `${result.waterVolume}ml water at ${result.waterTemperature}°C.`,
@@ -119,5 +152,3 @@ function formatResult(
     `Total brew time: ${result.totalBrewTime}.`,
   ].join(' ');
 }
-
-// 15g coffee, medium-fine grind. 250ml water at 96°C. 30s bloom, then pour in spirals. Total brew time: 2:30.
