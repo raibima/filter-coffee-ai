@@ -17,7 +17,7 @@ export default function Home() {
   return (
     <StaticShell
       userMenu={
-        <Suspense>
+        <Suspense fallback={null}>
           <UserData />
         </Suspense>
       }
