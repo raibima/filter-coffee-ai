@@ -90,8 +90,8 @@ export default function RecipeGenerator() {
           Coffee preferences (optional):
         </label>
         <p className="text-xs text-muted-foreground">
-          Specify any particular taste preferences, coffee origin, or brewing
-          style you'd like to try.
+          {`Specify any particular taste preferences, coffee origin, or brewing
+          style you'd like to try.`}
         </p>
         <Textarea
           id="preferences"
