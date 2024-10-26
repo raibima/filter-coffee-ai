@@ -17,7 +17,7 @@ export default function Home() {
   return (
     <StaticShell
       userMenu={
-        <Suspense fallback={null}>
+        <Suspense>
           <UserData />
         </Suspense>
       }
@@ -26,7 +26,6 @@ export default function Home() {
 }
 
 async function StaticShell({userMenu}: {userMenu: React.ReactNode}) {
-  'use cache';
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-100 to-amber-200 flex flex-col items-center justify-center p-4">
       {userMenu}
