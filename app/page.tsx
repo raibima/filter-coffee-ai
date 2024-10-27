@@ -15,20 +15,10 @@ export const maxDuration = 60;
 
 export default function Home() {
   return (
-    <StaticShell
-      userMenu={
-        <Suspense>
-          <UserData />
-        </Suspense>
-      }
-    />
-  );
-}
-
-async function StaticShell({userMenu}: {userMenu: React.ReactNode}) {
-  return (
     <div className="min-h-screen bg-gradient-to-b from-amber-100 to-amber-200 flex flex-col items-center justify-center p-4">
-      {userMenu}
+      <Suspense>
+        <UserData />
+      </Suspense>
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
